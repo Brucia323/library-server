@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class BookLendingMachineApplication
+open class BookLendingMachineApplication
 
 fun main(args: Array<String>) {
     runApplication<BookLendingMachineApplication>(*args)
