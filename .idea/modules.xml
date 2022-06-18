@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/book_lending_machine/book_lending_machine.iml" filepath="$PROJECT_DIR$/book_lending_machine/book_lending_machine.iml" />
       <module fileurl="file://$PROJECT_DIR$/library-server.iml" filepath="$PROJECT_DIR$/library-server.iml" />
     </modules>
   </component>
