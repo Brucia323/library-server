@@ -7,7 +7,7 @@
       <imported>true</imported>
       <remarks>Hibernate</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:49153/smart_library</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:49154/smart_library</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
