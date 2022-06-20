@@ -20,7 +20,7 @@ import javax.persistence.*
  * @property role 角色
  */
 data class Administrator(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @Column(nullable = false) var mobile: String = "",
     @Column(nullable = false) @JsonIgnore var passwordHash: String = "",

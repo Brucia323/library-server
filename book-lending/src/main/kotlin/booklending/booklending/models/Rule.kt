@@ -1,5 +1,6 @@
 package booklending.booklending.models
 
+import booklending.booklending.utils.RuleRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
@@ -18,7 +19,7 @@ import javax.persistence.*
  * @property value 值
  */
 data class Rule(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @Column(nullable = false) var value: Int = 0
 ) {

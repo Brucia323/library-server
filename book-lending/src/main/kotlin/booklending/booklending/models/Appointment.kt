@@ -1,5 +1,6 @@
 package booklending.booklending.models
 
+import booklending.booklending.utils.AppointmentRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
@@ -21,7 +22,7 @@ import javax.persistence.*
  * @property time 时间
  */
 data class Appointment(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @ManyToOne @JoinColumn(
         name = "reader_id",
         nullable = false
@@ -50,7 +51,7 @@ data class Appointment(
     }
 
     fun calculateAppointmentRanking(appointment: Appointment): Int {
-        val id: Int = appointment.id!!
+        val id: Long = appointment.id!!
         return appointmentRepository.countByIdLessThanEqual(id)
     }
 

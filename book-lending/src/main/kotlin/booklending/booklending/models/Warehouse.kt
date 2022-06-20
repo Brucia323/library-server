@@ -16,7 +16,7 @@ import javax.persistence.*
  * @property books 图书
  */
 data class Warehouse(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @OneToMany(mappedBy = "warehouse") var books: Set<Book> = setOf()
 ) {

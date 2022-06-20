@@ -1,5 +1,6 @@
 package booklending.booklending.models
 
+import booklending.booklending.utils.BookRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
@@ -25,11 +26,12 @@ import javax.persistence.*
  * @property bookshelf 书架
  * @property warehouse 仓库
  * @property category 分类
+ * @property coverUrl 封面url
  * @property info 更多信息
  * @property borrows 借阅记录
  */
 data class Book(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @Column(nullable = false) var writer: String = "",
     @Column(nullable = false) var isbn: String = "",
@@ -52,6 +54,7 @@ data class Book(
         name = "category_id",
         nullable = false
     ) var category: Category = Category(),
+    @Column(nullable = false) var coverUrl: String = "",
     @Column(nullable = true) var info: String = "",
     @OneToMany(mappedBy = "book") var borrows: Set<Borrow> = setOf()
 ) {

@@ -18,7 +18,7 @@ import javax.persistence.*
  * @property bookshelfs 书架
  */
 data class Category(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @OneToMany(mappedBy = "category") var books: Set<Book> = setOf(),
     @OneToMany(mappedBy = "category") var bookshelfs: Set<Bookshelf> = setOf()

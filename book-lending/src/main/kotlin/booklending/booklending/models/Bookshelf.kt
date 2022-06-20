@@ -13,14 +13,12 @@ import javax.persistence.*
 /**
  * 书架
  * @property id 书架ID
- * @property name 名称
  * @property category 分类
  * @property area 位置
  * @property books 书
  */
 data class Bookshelf(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
-    @Column(nullable = false) var name: String = "",
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @ManyToOne @JoinColumn(
         name = "category_id",
         nullable = false

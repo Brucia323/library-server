@@ -1,10 +1,11 @@
 package booklending.booklending.models
 
+import booklending.booklending.utils.BorrowRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
-import java.time.LocalDateTime
+import java.time.LocalDate
 import javax.annotation.Resource
 import javax.persistence.*
 
@@ -21,7 +22,7 @@ import javax.persistence.*
  * @property returnTime 归还时间
  */
 data class Borrow(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @ManyToOne @JoinColumn(
         name = "reader_id", nullable = false
     ) var reader: Reader = Reader(),
@@ -29,8 +30,8 @@ data class Borrow(
         name = "book_id",
         nullable = false
     ) var book: Book = Book(),
-    @Column(nullable = false) var borrowTime: LocalDateTime = LocalDateTime.now(),
-    @Column(nullable = true) var returnTime: LocalDateTime? = null
+    @Column(nullable = false) var borrowTime: LocalDate = LocalDate.now(),
+    @Column(nullable = true) var returnTime: LocalDate? = null
 ) {
     @Transient
     @Resource
@@ -40,7 +41,7 @@ data class Borrow(
         var rule = Rule()
         rule = rule.getRuleByName("借阅时长") // TODO
         val duration = rule.value
-        val now = LocalDateTime.now()
+        val now = LocalDate.now()
         val latestBorrowingTime = now.minusDays(duration.toLong())
         return borrowRepository.countByReaderAndReturnTimeIsNullAndBorrowTimeBefore(
             reader,

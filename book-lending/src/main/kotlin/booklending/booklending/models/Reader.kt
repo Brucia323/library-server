@@ -24,7 +24,7 @@ import javax.persistence.*
  * @property borrows 借阅记录
  */
 data class Reader(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Int? = null,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @Column(nullable = false) var mobile: String = "",
     @Column(nullable = false) @JsonIgnore var passwordHash: String = "",
