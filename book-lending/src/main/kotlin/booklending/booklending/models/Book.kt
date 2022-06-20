@@ -1,12 +1,10 @@
 package booklending.booklending.models
 
-import booklending.booklending.utils.BookRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
-import java.time.LocalDateTime
-import javax.annotation.Resource
+import java.time.LocalDate
 import javax.persistence.*
 
 @Entity
@@ -36,7 +34,7 @@ data class Book(
     @Column(nullable = false) var writer: String = "",
     @Column(nullable = false) var isbn: String = "",
     @Column(nullable = false) var price: Double = 0.0,
-    @Column(nullable = false) var publicTime: LocalDateTime = LocalDateTime.now(),
+    @Column(nullable = false) var publicTime: LocalDate = LocalDate.now(),
     @Column(nullable = false) var publisher: String = "",
     // 在架=1
     // 借出=2
@@ -58,14 +56,6 @@ data class Book(
     @Column(nullable = true) var info: String = "",
     @OneToMany(mappedBy = "book") var borrows: Set<Borrow> = setOf()
 ) {
-    @Transient
-    @Resource
-    lateinit var bookRepository: BookRepository
-
-    fun countBookByIsbnWithOnShelf(isbn: String): Int {
-        return bookRepository.countByIsbnAndState(isbn, 1)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(

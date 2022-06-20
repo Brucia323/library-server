@@ -1,11 +1,9 @@
 package booklending.booklending.models
 
-import booklending.booklending.utils.RuleRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
-import javax.annotation.Resource
 import javax.persistence.*
 
 @Entity
@@ -23,14 +21,6 @@ data class Rule(
     @Column(nullable = false) var name: String = "",
     @Column(nullable = false) var value: Int = 0
 ) {
-    @Transient
-    @Resource
-    lateinit var ruleRepository: RuleRepository
-
-    fun getRuleByName(name: String): Rule {
-        return ruleRepository.getByName(name)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(

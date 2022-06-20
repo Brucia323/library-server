@@ -1,12 +1,10 @@
 package booklending.booklending.models
 
-import booklending.booklending.utils.AppointmentRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
 import java.time.LocalDateTime
-import javax.annotation.Resource
 import javax.persistence.*
 
 @Entity
@@ -34,27 +32,6 @@ data class Appointment(
     @Column(nullable = false) var state: Int = 0,
     @Column(nullable = false) var time: LocalDateTime = LocalDateTime.now()
 ) {
-    @Transient
-    @Resource
-    lateinit var appointmentRepository: AppointmentRepository
-
-    fun isAppointment(isbn: String, reader: Reader): Appointment {
-        return appointmentRepository.findByReaderAndStateAndIsbn(
-            reader,
-            1,
-            isbn
-        )
-    }
-
-    fun countAppointmentByIsbn(isbn: String): Int {
-        return appointmentRepository.countByIsbnAndState(isbn, 1)
-    }
-
-    fun calculateAppointmentRanking(appointment: Appointment): Int {
-        val id: Long = appointment.id!!
-        return appointmentRepository.countByIdLessThanEqual(id)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(

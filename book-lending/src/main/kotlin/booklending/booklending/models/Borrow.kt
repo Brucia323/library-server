@@ -1,12 +1,10 @@
 package booklending.booklending.models
 
-import booklending.booklending.utils.BorrowRepository
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
 import java.time.LocalDate
-import javax.annotation.Resource
 import javax.persistence.*
 
 @Entity
@@ -33,22 +31,6 @@ data class Borrow(
     @Column(nullable = false) var borrowTime: LocalDate = LocalDate.now(),
     @Column(nullable = true) var returnTime: LocalDate? = null
 ) {
-    @Transient
-    @Resource
-    lateinit var borrowRepository: BorrowRepository
-
-    fun countTimeoutByReaderId(reader: Reader): Int {
-        var rule = Rule()
-        rule = rule.getRuleByName("借阅时长") // TODO
-        val duration = rule.value
-        val now = LocalDate.now()
-        val latestBorrowingTime = now.minusDays(duration.toLong())
-        return borrowRepository.countByReaderAndReturnTimeIsNullAndBorrowTimeBefore(
-            reader,
-            latestBorrowingTime
-        )
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(

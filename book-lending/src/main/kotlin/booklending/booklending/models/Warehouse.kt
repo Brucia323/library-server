@@ -19,6 +19,4 @@ data class Warehouse(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long? = null,
     @Column(nullable = false) var name: String = "",
     @OneToMany(mappedBy = "warehouse") var books: Set<Book> = setOf()
-) {
-
-}
+)

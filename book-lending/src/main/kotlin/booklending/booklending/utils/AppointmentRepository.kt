@@ -3,8 +3,10 @@ package booklending.booklending.utils
 import booklending.booklending.models.Appointment
 import booklending.booklending.models.Reader
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.lang.Nullable
 
 interface AppointmentRepository : JpaRepository<Appointment, Long> {
+    @Nullable
     fun findByReaderAndStateAndIsbn(
         reader: Reader,
         state: Int,
