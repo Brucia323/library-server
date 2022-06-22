@@ -1,5 +1,6 @@
 package booklending.booklending.models
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.hibernate.Hibernate
 import org.hibernate.annotations.DynamicInsert
@@ -34,27 +35,27 @@ data class Book(
     @Column(nullable = false) var writer: String = "",
     @Column(nullable = false) var isbn: String = "",
     @Column(nullable = false) var price: Double = 0.0,
-    @Column(nullable = false) var publicTime: LocalDate = LocalDate.now(),
+    @Column(nullable = false) @JsonIgnore var publicTime: LocalDate = LocalDate.now(),
     @Column(nullable = false) var publisher: String = "",
     // 在架=1
     // 借出=2
     // 下架=3
     @Column(nullable = false) var state: Int = 0,
-    @ManyToOne @JoinColumn(
+    @ManyToOne @JsonIgnore @JoinColumn(
         name = "bookshelf_id",
         nullable = true
     ) var bookshelf: Bookshelf = Bookshelf(),
-    @ManyToOne @JoinColumn(
+    @ManyToOne @JsonIgnore @JoinColumn(
         name = "warehouse_id",
         nullable = true
     ) var warehouse: Warehouse = Warehouse(),
-    @ManyToOne @JoinColumn(
+    @ManyToOne @JsonIgnore @JoinColumn(
         name = "category_id",
         nullable = false
     ) var category: Category = Category(),
-    @Column(nullable = false) var coverUrl: String = "",
-    @Column(nullable = true) var info: String = "",
-    @OneToMany(mappedBy = "book") var borrows: Set<Borrow> = setOf()
+    @Column(nullable = false) @JsonIgnore var coverUrl: String = "",
+    @Column(nullable = true) @JsonIgnore var info: String = "",
+    @OneToMany(mappedBy = "book") @JsonIgnore var borrows: Set<Borrow> = setOf()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

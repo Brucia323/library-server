@@ -3,7 +3,9 @@ package booklending.booklending
 import booklending.booklending.models.Administrator
 import booklending.booklending.models.Reader
 import booklending.booklending.utils.AdministratorRepository
+import booklending.booklending.utils.BookRepository
 import booklending.booklending.utils.ReaderRepository
+import com.google.gson.Gson
 import net.datafaker.Faker
 import org.apache.logging.log4j.kotlin.Logging
 import org.junit.jupiter.api.Test
@@ -32,10 +34,12 @@ class BookLendingMachineApplicationTests : Logging {
     @Autowired
     lateinit var dataSource: DataSource
 
+    @Resource
+    lateinit var bookRepository: BookRepository
+
     @Test
     fun contextLoads() {
-        createAdministrator()
-        createReader()
+        val book = bookRepository.findAllById([1201, 1202, 1202, 1202, 1202])
     }
 
     fun createAdministrator() {
@@ -56,6 +60,7 @@ class BookLendingMachineApplicationTests : Logging {
     }
 
     fun createReader() {
+        logger.info("Thread: ${Thread.currentThread()}")
         val faker = Faker(Locale.CHINA)
         val list = mutableListOf<Reader>()
         for (i in 1..1000) {
@@ -63,7 +68,7 @@ class BookLendingMachineApplicationTests : Logging {
             reader.name = faker.name().fullName()
             reader.mobile = faker.phoneNumber().cellPhone()
             reader.passwordHash = BCrypt.hashpw("123456", BCrypt.gensalt(10))
-            reader.deposit = faker.number().numberBetween(100, 1000)
+            reader.deposit = arrayListOf(100, 300, 600, 900, 1500).random()
             reader.amount = reader.deposit.toDouble()
             reader.state = 1
             list.add(reader)

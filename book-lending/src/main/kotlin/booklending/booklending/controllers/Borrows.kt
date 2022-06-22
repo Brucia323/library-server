@@ -1,9 +1,6 @@
 package booklending.booklending.controllers
 
-import booklending.booklending.models.Appointment
-import booklending.booklending.models.Borrow
-import booklending.booklending.models.Reader
-import booklending.booklending.models.Rule
+import booklending.booklending.models.*
 import booklending.booklending.utils.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -31,10 +28,14 @@ class Borrows {
         return ResponseEntity.status(200).body(mapOf("count" to count))
     }
 
-    @GetMapping("/eligibility")
+    @PostMapping("/eligibility")
     fun getBorrowingEligibility(@RequestBody body: Map<String, Long>): ResponseEntity<Map<String, Boolean>> {
         val bookId: Long = body["bookId"]!!
         val book = bookRepository.getReferenceById(bookId)
+        if (book.state != 1) {
+            return ResponseEntity.status(200)
+                .body(mapOf("Eligibility" to false))
+        }
         val readerId: Long = body["readerId"]!!
         val reader = readerRepository.getReferenceById(readerId)
         val appointment = isAppointment(book.isbn, reader)
@@ -56,20 +57,19 @@ class Borrows {
         return ResponseEntity.status(200).body(mapOf("Eligibility" to true))
     }
 
-    @GetMapping("/check-loan-amount/{readerId}")
+    @PostMapping("/check-loan-amount/{readerId}")
     fun checkLoanAmount(
-        @RequestBody body: Map<String, List<Long>>,
+        @RequestBody bookList: List<Long>,
         @PathVariable("readerId") readerId: Long
     ): ResponseEntity<Map<String, Boolean>> {
         val reader = readerRepository.getReferenceById(readerId)
         var count = 0.0
-        val bookList = body["bookList"] ?: return ResponseEntity.status(400).build()
         bookList.forEach {
             val bookId: Long = it
             val book = bookRepository.getReferenceById(bookId)
             count += book.price
         }
-        if (count < reader.amount) {
+        if (count <= reader.amount) {
             return ResponseEntity.status(200).body(mapOf("result" to true))
         }
         return ResponseEntity.status(200).body(mapOf("result" to false))
@@ -78,14 +78,21 @@ class Borrows {
     @PostMapping("/{readerId}")
     fun createBorrow(
         @PathVariable("readerId") readerId: Long,
-        @RequestBody body: Map<String, List<Long>>
+        @RequestBody bookList: List<Long>
     ): ResponseEntity<Any> {
         val reader = readerRepository.getReferenceById(readerId)
         var count = 0.0
-        val bookList = body["bookList"] ?: return ResponseEntity.status(400).build()
         bookList.forEach {
             val bookId = it
             val book = bookRepository.getReferenceById(bookId)
+            val appointment = appointmentRepository.findByReaderAndIsbn(
+                reader.id!!,
+                book.isbn
+            )
+            if (appointment != null) {
+                appointment.state = 1
+                appointmentRepository.save(appointment)
+            }
             count += book.price
             val borrow = Borrow(null, reader, book, LocalDate.now(), null)
             borrowRepository.save(borrow)
@@ -98,11 +105,18 @@ class Borrows {
     }
 
     @PutMapping("/return-book")
-    fun returnBook(@RequestBody body: Map<String, List<Long>>): ResponseEntity<Any> {
-        val bookList = body["bookList"] ?: return ResponseEntity.status(400).build()
-        bookList.forEach {
+    fun returnBook(@RequestBody borrowList: List<Long>): ResponseEntity<Any> {
+        borrowList.forEach {
             val borrowId = it
             val borrow = borrowRepository.getReferenceById(borrowId)
+            val book = bookRepository.getReferenceById(borrow.book.id!!)
+            val appointment = appointmentRepository.findByIsbn(
+                book.isbn
+            )
+            if (appointment != null) {
+                appointment.state = 2
+                appointmentRepository.save(appointment)
+            }
             borrow.reader.amount += borrow.book.price
             readerRepository.save(borrow.reader)
             borrow.book.state = 3
@@ -117,9 +131,8 @@ class Borrows {
     lateinit var appointmentRepository: AppointmentRepository
 
     fun isAppointment(isbn: String, reader: Reader): Appointment? {
-        return appointmentRepository.findByReaderAndStateAndIsbn(
-            reader,
-            1,
+        return appointmentRepository.findByReaderAndIsbn(
+            reader.id!!,
             isbn
         )
     }
@@ -138,7 +151,7 @@ class Borrows {
     }
 
     fun countTimeoutByReaderId(reader: Reader): Int {
-        val rule = getRuleByName("借阅时长") // TODO
+        val rule = getRuleByName("borrow_max")
         val duration = rule.value
         val now = LocalDate.now()
         val latestBorrowingTime = now.minusDays(duration.toLong())
@@ -153,5 +166,72 @@ class Borrows {
 
     fun getRuleByName(name: String): Rule {
         return ruleRepository.getByName(name)
+    }
+
+    @PostMapping("/get-book")
+    fun getBook(@RequestBody bookIds: List<Long>): ResponseEntity<Map<String, List<Book>>> {
+        val book = bookRepository.findAllById(bookIds)
+        return ResponseEntity.status(200).body(mapOf("book" to book))
+    }
+
+    @PostMapping("/get-borrow")
+    fun getBorrow(@RequestBody borrows: List<Long>): ResponseEntity<Map<String, MutableList<Borrow>>> {
+        val borrowList = borrowRepository.findAllById((borrows))
+        return ResponseEntity.status(200).body(mapOf("borrow" to borrowList))
+    }
+
+    //    以下代码为演示需要，上线前请删除
+
+    @GetMapping("/random-reader")
+    fun getRandomReader(): ResponseEntity<Map<String, Long?>> {
+        val count = readerRepository.count()
+        var randomNumber = (0..count).random()
+        var reader = readerRepository.getReferenceById(randomNumber)
+        while (reader.state != 1) {
+            randomNumber = (0..count).random()
+            reader = readerRepository.getReferenceById(randomNumber)
+        }
+        return ResponseEntity.status(200)
+            .body(mapOf("readerId" to randomNumber))
+    }
+
+    @GetMapping("/random-book")
+    fun getRandomBook(): ResponseEntity<Map<String, MutableList<Long>>> {
+        val count = bookRepository.count()
+        var randomNumber = (0..count).random()
+        var book = bookRepository.findByLimit(randomNumber)
+        while (book.state != 1) {
+            randomNumber = (0..count).random()
+            book = bookRepository.findByLimit(randomNumber)
+        }
+        val books = mutableListOf(book.id!!)
+        val rand = (1..10).random()
+        for (i in 1..rand) {
+            book = bookRepository.findByLimit(randomNumber + i)
+            if (book.state == 1) {
+                books.add(book.id!!)
+            }
+        }
+        return ResponseEntity.status(200).body(mapOf("book" to books))
+    }
+
+    @GetMapping("/random-borrow")
+    fun getRandomBorrow(): ResponseEntity<Map<String, ArrayList<Long>>> {
+        val count = borrowRepository.count()
+        var randomNumber = (0..count).random()
+        var borrow = borrowRepository.findByLimit(randomNumber)
+        while (borrow.returnTime != null) {
+            randomNumber = (0..count).random()
+            borrow = borrowRepository.findByLimit(randomNumber)
+        }
+        val borrows = arrayListOf(randomNumber)
+        val rand = (1..5).random()
+        for (i in 1..rand) {
+            borrow = borrowRepository.findByLimit(randomNumber + i)
+            if (borrow.returnTime == null) {
+                borrows.add(randomNumber + i)
+            }
+        }
+        return ResponseEntity.status(200).body(mapOf("borrow" to borrows))
     }
 }

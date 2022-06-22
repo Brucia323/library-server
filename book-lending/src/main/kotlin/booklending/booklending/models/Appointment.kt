@@ -26,9 +26,10 @@ data class Appointment(
         nullable = false
     ) var reader: Reader = Reader(),
     @Column(nullable = false) var isbn: String = "",
-    // 预约中=1
-    // 已借阅=2
-    // 已取消=3
+    // 预约成功=1
+    // 待取书=2
+    // 排队中=3
+    // 预约取消=4
     @Column(nullable = false) var state: Int = 0,
     @Column(nullable = false) var time: LocalDateTime = LocalDateTime.now()
 ) {

@@ -33,8 +33,8 @@ data class Reader(
     // 可用=1
     // 失效=2
     @Column(nullable = false) var state: Int = 0,
-    @OneToMany(mappedBy = "reader") var appointments: Set<Appointment> = setOf(),
-    @OneToMany(mappedBy = "reader") var borrows: Set<Borrow> = setOf()
+    @OneToMany(mappedBy = "reader") @JsonIgnore var appointments: Set<Appointment> = setOf(),
+    @OneToMany(mappedBy = "reader") @JsonIgnore var borrows: Set<Borrow> = setOf()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
