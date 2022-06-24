@@ -61,11 +61,15 @@ class Borrows {
      * 实验性功能
      */
     fun getBorrowEligibility(@RequestBody body: Map<String, Any>) {
-        val bookIdList: List<Long> = ((body["bookList"] as List<Long>?)!!)
+        val bookIdList: List<Long> = (body["bookList"] as List<Long>?)!!
         val readerId: Long = ((body["readerId"] as Long?)!!)
         val bookList = bookRepository.findAllById(bookIdList)
         val bookMap = mutableMapOf<Book, Int>()
+        val responseBody = mutableMapOf<Long, String>()
         for (book in bookList) {
+            if (book.state != 1) {
+                responseBody[book.id!!] = "all"
+            }
             val existence = bookMap.containsKey(book)
             if (existence) {
                 bookMap[book] = bookMap[book]!! + 1
@@ -73,7 +77,6 @@ class Borrows {
                 bookMap[book] = 1
             }
         }
-
     }
 
     @PostMapping("/check-loan-amount/{readerId}")
